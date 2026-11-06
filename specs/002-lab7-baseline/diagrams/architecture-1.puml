@@ -1,0 +1,56 @@
+﻿@startuml architecture1-components
+ title Architecture #1 - proposed components (unimplemented)
+ actor "Account holder" as User
+ package "One desktop application process" {
+   [Swing views/presenters] as UI
+   [Application services] as App
+   [Access / business policies] as Policy
+   [Pure domain rules] as Domain
+   interface "Repository / UnitOfWork ports" as Ports
+   [JDBC adapters] as Adapter
+   [Credential adapter] as Credentials
+   [Bootstrap] as Boot
+ }
+ database "Local H2 store\nRecords + receipt BLOBs\n(proposed)" as DB
+ User --> UI
+ UI --> App
+ App --> Policy
+ App --> Domain
+ App --> Ports
+ Adapter ..|> Ports
+ Adapter --> DB
+ App --> Credentials
+ Boot ..> UI : composes
+ Boot ..> App : composes
+ Boot ..> Adapter : composes
+ note bottom of Domain
+ BigDecimal; explicit participants;
+ pending isolation; total preservation.
+ Residual / reviewer policies unresolved.
+ end note
+@enduml
+
+@startuml architecture1-deployment
+ title Architecture #1 - conditional local deployment (not deployed)
+ node "Workstation / OS account trust boundary" {
+   node "Java 21 runtime" {
+     artifact "Proposed executable application JAR" as Jar
+     component "Swing event dispatch thread" as EDT
+     component "Background service / storage worker" as Worker
+   }
+   folder "Private data directory\nOutside repository / file sync" {
+     database "Embedded H2 file\nIncludes receipt BLOBs" as Store
+   }
+ }
+ EDT --> Worker : in-process calls
+ Worker --> Store : JDBC transactions
+ note right of Store
+ No shared network file, server,
+ synchronization or remote clients.
+ Host file access bypasses app login.
+ end note
+ note bottom of Jar
+ Desktop candidate does not meet CR-10.
+ Web/mobile scope decision U-01 required.
+ end note
+@enduml
