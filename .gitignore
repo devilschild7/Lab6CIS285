@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Lab 8 local SQLite databases
+*.db
+*.db-journal
